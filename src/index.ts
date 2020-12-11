@@ -3,21 +3,32 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import dotenv from 'dotenv';
+import cors from 'cors';
 
-import indexRouter from './controllers/index';
-import usersRouter from './controllers/Url';
+import indexController from './controllers/index';
+import urlController from './controllers/Url';
+
+import { connect } from './db';
 
 dotenv.config();
 
+connect();
 const app = express();
+
+const whitelist = [process.env.FRONTEND_URL];
+app.use(
+  cors({
+    origin: whitelist,
+  }),
+);
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/', indexController);
+app.use('/url', urlController);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
